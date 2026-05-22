@@ -351,12 +351,11 @@ async def lifespan(mcp: FastMCP[None]) -> AsyncGenerator[None, None]:
                         f'(model: {reranking_provider.model_name})',
                     )
             except ImportError as e:
-                logger.warning(
-                    f'Reranking dependencies not installed: {e}. '
-                    f'Install with: uv sync --extra reranking. '
-                    'Search results will not be reranked.',
-                )
-                set_reranking_provider(None)
+                raise ConfigurationError(
+                    f'ENABLE_RERANKING=true but provider import failed: {e}. '
+                    f'Fix: Install reranking dependencies (uv sync --extra reranking) '
+                    f'OR set ENABLE_RERANKING=false to disable reranking.',
+                ) from e
             except Exception as e:
                 logger.warning(
                     f'Failed to initialize reranking provider: {e}. '
